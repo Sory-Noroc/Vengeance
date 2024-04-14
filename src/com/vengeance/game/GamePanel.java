@@ -38,7 +38,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
-        this.setBackground(new Color(5, 37, 71));
+        this.setBackground(new Color(0,0,0));
         this.setDoubleBuffered(true);
         this.addKeyListener(keyHandler);
         this.setFocusable(true);
@@ -96,6 +96,8 @@ public class GamePanel extends JPanel implements Runnable {
 
         graphics2D.dispose();
     }
+
+    public int getScale() { return scale; }
 
     public int getTileSize() {
         return tileSize;

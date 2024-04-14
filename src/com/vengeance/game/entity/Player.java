@@ -22,27 +22,31 @@ public class Player extends Entity {
 
         width = 52;
         height = 50;
-        drawWidth = width * 3;
-        drawHeight = height * 3;
-        this.screenX = gamePanel.getScreenWidth() / 2 - (gamePanel.getTileSize() / 2);
-        this.screenY = gamePanel.getScreenHeight() / 2 - (gamePanel.getTileSize() / 2);
+        drawWidth = width * gamePanel.getScale();
+        drawHeight = height * gamePanel.getScale();
+        this.screenX = gamePanel.getScreenWidth() / 2 - (drawWidth / 2);
+        this.screenY = gamePanel.getScreenHeight() / 2 - (drawHeight / 2);
 
-        setCollisionArea(new Rectangle(32, 45, 21, 14));
+        setCollisionArea(new Rectangle(
+                16 * gamePanel.getScale(),
+                24 * gamePanel.getScale(),
+                21 * gamePanel.getScale(),
+                19 * gamePanel.getScale()));
 
         setDefaultValues();
         getPlayerImage();
     }
 
     public void setDefaultValues() {
-        setWorldX(gamePanel.getTileSize() * 23);
+        setWorldX(gamePanel.getTileSize() * 25);
         setWorldY(gamePanel.getTileSize() * 21);
         setSpeed(4);
         setDirection("down");
     }
 
     public void getPlayerImage() {
-         setImages("right", "/resources/images/player/vikingPlayer/walkSheetRight.png", 52, 50, 2, 3);
-         setImages("left", "/resources/images/player/vikingPlayer/walkSheetLeft.png", 52, 50, 2, 3);
+         setImages("right", "/resources/images/player/vikingPlayer/walkSheetRight.png", width, height, 2, 3);
+         setImages("left", "/resources/images/player/vikingPlayer/walkSheetLeft.png", width, height, 2, 3);
     }
 
     @Override
@@ -101,7 +105,7 @@ public class Player extends Entity {
 
     @Override
     public void draw(Graphics2D graphics2D) {
-        graphics2D.drawImage(getDirectionalImage(), screenX - width, screenY - height, gamePanel.getTileSize() * 4, gamePanel.getTileSize() * 4, null);
+        graphics2D.drawImage(getDirectionalImage(), screenX, screenY, drawWidth, drawHeight, null);
     }
 
     private BufferedImage getDirectionalImage() {
