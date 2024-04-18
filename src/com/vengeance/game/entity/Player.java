@@ -3,8 +3,9 @@ package com.vengeance.game.entity;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-import com.vengeance.game.GamePanel;
-import com.vengeance.game.KeyHandler;
+import com.vengeance.game.main.GamePanel;
+import com.vengeance.game.main.KeyHandler;
+import com.vengeance.game.object.SuperObject;
 
 public class Player extends Entity {
 
@@ -13,8 +14,8 @@ public class Player extends Entity {
 
     private final int screenX;
     private final int screenY;
-    private final int drawWidth;
-    private final int drawHeight;
+
+    public int keysGathered = 0;
 
     public Player(GamePanel gamePanel, KeyHandler keyHandler) {
         this.gamePanel = gamePanel;
@@ -33,6 +34,9 @@ public class Player extends Entity {
                 21 * gamePanel.getScale(),
                 19 * gamePanel.getScale()));
 
+        solidAreaDefaultX = collisionArea.x;
+        solidAreaDefaultY = collisionArea.y;
+
         setDefaultValues();
         getPlayerImage();
     }
@@ -44,17 +48,21 @@ public class Player extends Entity {
         setDirection("down");
     }
 
-    public void getPlayerImage() {
+    public BufferedImage getPlayerImage() {
          setImages("right", "/resources/images/player/vikingPlayer/walkSheetRight.png", width, height, 2, 3);
          setImages("left", "/resources/images/player/vikingPlayer/walkSheetLeft.png", width, height, 2, 3);
+         return getRight()[1];
     }
 
     @Override
     public void update() {
 
-        if (keyHandler.isUpPressed() || keyHandler.isDownPressed()
-                || keyHandler.isLeftPressed() || keyHandler.isRightPressed()) {
-
+        if (
+                keyHandler.isUpPressed() ||
+                keyHandler.isDownPressed() ||
+                keyHandler.isLeftPressed() ||
+                keyHandler.isRightPressed())
+        {
             if (keyHandler.isUpPressed()) {
                 setDirection("up");
             } else if (keyHandler.isDownPressed()) {
@@ -77,6 +85,9 @@ public class Player extends Entity {
     }
 
     private void moveIfCollisionNotDetected() {
+        int objIndex = gamePanel.getCollisionChecker().checkObject(this, true);
+        interactWithObject(objIndex);
+
         if (!isCollisionOn()) {
             switch (getDirection()) {
                 case "up" -> setWorldY(getWorldY() - getSpeed());
@@ -103,9 +114,29 @@ public class Player extends Entity {
         }
     }
 
+    private void interactWithObject(int i) {
+        if (i != -1) {
+            SuperObject.Object name = gamePanel.obj[i].name;
+            switch (name) {
+                case KEY -> {
+                    keysGathered++;
+                    gamePanel.playSE(1);
+                    gamePanel.obj[i] = null;
+                    gamePanel.ui.setMessage("You got a key!");
+                }
+                case CHEST -> {
+                    // some action when we touch a chest
+                    gamePanel.ui.setMessage("You opened a chest!");
+                }
+
+            }
+
+        }
+    }
+
     @Override
     public void draw(Graphics2D graphics2D) {
-        graphics2D.drawImage(getDirectionalImage(), screenX, screenY, drawWidth, drawHeight, null);
+        graphics2D.drawImage(getDirectionalImage(), screenX, screenY, null);
     }
 
     private BufferedImage getDirectionalImage() {

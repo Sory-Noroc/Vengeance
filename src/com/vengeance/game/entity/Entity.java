@@ -1,5 +1,7 @@
 package com.vengeance.game.entity;
 
+import com.vengeance.game.main.UtilityTool;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -17,10 +19,11 @@ public abstract class Entity {
     private String direction;
     private int spriteCounter = 0;
     private int spriteNumber = 1;
-    private Rectangle collisionArea;
+    public Rectangle collisionArea;
     private boolean collisionOn = false;
     protected int width, height;
     protected int drawWidth, drawHeight;
+    public int solidAreaDefaultX, solidAreaDefaultY;
 
     public abstract void update();
     public abstract void draw(Graphics2D graphics2D);
@@ -69,26 +72,8 @@ public abstract class Entity {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 dir[count] = sprite.getSubimage(width * j, height * i, width, height);
+                dir[count] = UtilityTool.scaleImage(dir[count], drawWidth, drawHeight);
                 count++;
-            }
-        }
-        return this;
-    }
-
-    public Entity setImages(String direction, String... images) {
-        for (int i = 0; i < images.length; i++) {
-            try {
-                switch (direction) {
-                    case "left": {
-                        left[i] = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream(images[i])));
-                        break;
-                    }
-                    case "right": {
-                        right[i] = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream(images[i])));
-                    }
-                }
-            } catch (IOException e) {
-                System.out.println("Image loading error!");
             }
         }
         return this;

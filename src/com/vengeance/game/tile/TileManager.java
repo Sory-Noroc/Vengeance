@@ -1,7 +1,9 @@
 package com.vengeance.game.tile;
 
-import com.vengeance.game.GamePanel;
+import com.vengeance.game.AnimationFactory;
+import com.vengeance.game.main.GamePanel;
 import com.vengeance.game.entity.Player;
+import com.vengeance.game.main.UtilityTool;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -29,13 +31,24 @@ public class TileManager {
         loadMap("/resources/maps/level1.txt");
     }
 
+    public void setup(int index, BufferedImage image, boolean collision) {
+        try {
+            tiles[index] = new Tile();
+            tiles[index].setImage(UtilityTool.scaleImage(image, gamePanel.getTileSize(), gamePanel.getTileSize()));
+            tiles[index].setCollision(collision);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void getTileImage() {
         try {
             BufferedImage fullTileImage = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/resources/images/tiles/castleTiles.png")));
 
             for (int i = 0; i < tileCount; i++) {
-                tiles[i+1] = new Tile();
-                tiles[i+1].setImage(fullTileImage.getSubimage((i % 16) * tileSize, i / 16 * tileSize, tileSize, tileSize));
+                BufferedImage subImg = fullTileImage.getSubimage((i % 16) * tileSize, i / 16 * tileSize, tileSize, tileSize);
+                setup(i+1, subImg, true);
                 tiles[i+1].setCollision(true);
             }
             tiles[130].setCollision(false);
@@ -51,6 +64,8 @@ public class TileManager {
         try {
             int column = 0;
             int row = 0;
+            int[] animatedTileNumbers = {14, 30, 46};
+
             String line;
             StringBuilder fileContent = new StringBuilder();
             InputStream inputStream = getClass().getResourceAsStream(mapPath);
@@ -64,9 +79,19 @@ public class TileManager {
             while (column < gamePanel.getMaxWorldColumns() && row < gamePanel.getMaxWorldRows()) {
 
                 while (column < gamePanel.getMaxWorldColumns()) {
-                    int number = Integer.parseInt(mapString[row * gamePanel.getMaxWorldRows() + column]);
+                    int tileNumber = Integer.parseInt(mapString[row * gamePanel.getMaxWorldRows() + column]);
 
-                    mapTileNumbers[row][column] = number;
+                    mapTileNumbers[row][column] = tileNumber;
+                    for (int i = 0; i < animatedTileNumbers.length; i++) {
+                        if (animatedTileNumbers[i] == tileNumber) {
+                            tiles[tileNumber].setAnimation(AnimationFactory.createAnimation(
+                                    3,
+                                    20,
+                                    tiles[tileNumber].getImage(),
+                                    tiles[tileNumber + 1].getImage(),
+                                    tiles[tileNumber + 2].getImage()));
+                        }
+                    }
                     column++;
                 }
                 if (column == gamePanel.getMaxWorldColumns()) {
@@ -98,8 +123,12 @@ public class TileManager {
             int screenX = worldX - player.getWorldX() + player.getScreenX();
             int screenY = worldY - player.getWorldY() + player.getScreenY();
 
-            graphics2D.drawImage(tiles[tileNumber].getImage(), screenX, screenY, gamePanel.getTileSize(), gamePanel.getTileSize(), null);
-
+            if (worldX + player.getDrawWidth() > player.getWorldX() - player.getScreenX() &&
+                worldY + player.getDrawHeight() > player.getWorldY() - player.getScreenY() &&
+                worldX - player.getDrawWidth() < player.getWorldX() + player.getScreenX() &&
+                worldY - player.getDrawHeight() < player.getWorldY() + player.getScreenY() ) {
+                graphics2D.drawImage(tiles[tileNumber].getImage(), screenX, screenY, null);
+            }
             worldColumn++;
 
             if (worldColumn == gamePanel.getMaxWorldColumns()) {
