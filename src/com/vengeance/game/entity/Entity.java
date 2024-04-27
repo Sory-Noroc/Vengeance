@@ -1,25 +1,26 @@
 package com.vengeance.game.entity;
 
-import com.vengeance.game.main.UtilityTool;
 
-import javax.imageio.ImageIO;
+import com.vengeance.game.main.GamePanel;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.Objects;
-
-import static java.lang.System.exit;
 
 public abstract class Entity {
 
+    protected GamePanel gamePanel;
     private int worldX, worldY;
-    private int speed;
-    private BufferedImage[] left = new BufferedImage[6];
-    private BufferedImage[] right = new BufferedImage[6];
-    private String direction;
+    public enum direction {WALK_LEFT, WALK_RIGHT, WALK_UP, WALK_DOWN, IDLE_LEFT, IDLE_RIGHT};
+    public int speed;
+    public BufferedImage[] walkLeft;
+    public BufferedImage[] walkRight;
+    public BufferedImage[] idleLeft;
+    public BufferedImage[] idleRight;
+    public direction walkDirection;
+    public direction drawDirection;
     private int spriteCounter = 0;
     private int spriteNumber = 1;
-    public Rectangle collisionArea;
+    public Rectangle collisionArea = new Rectangle(0,0,32, 32);
     private boolean collisionOn = false;
     protected int width, height;
     protected int drawWidth, drawHeight;
@@ -27,6 +28,10 @@ public abstract class Entity {
 
     public abstract void update();
     public abstract void draw(Graphics2D graphics2D);
+
+    public Entity(GamePanel gamePanel) {
+        this.gamePanel = gamePanel;
+    }
 
     public int getWorldX() {
         return worldX;
@@ -55,33 +60,15 @@ public abstract class Entity {
         return this;
     }
 
-    public Entity setImages(String direction, String imagePath, int width, int height, int rows, int cols) {
-        BufferedImage sprite = null;
-        try {
-            sprite = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream(imagePath)));
-        } catch (IOException e) {
-            e.printStackTrace();
-            exit(-1);
-        }
-
-        BufferedImage[] dir = left;
-        if (direction.equals("right")) {
-            dir = right;
-        }
-        int count = 0;
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                dir[count] = sprite.getSubimage(width * j, height * i, width, height);
-                dir[count] = UtilityTool.scaleImage(dir[count], drawWidth, drawHeight);
-                count++;
-            }
-        }
-        return this;
+    public BufferedImage[] getWalkRight() {
+        return walkRight;
     }
 
-    public BufferedImage[] getLeft() { return left; }
+    public BufferedImage[] getWalkLeft() {
+        return walkLeft;
+    }
 
-    public BufferedImage[] getRight() { return right; }
+    public abstract Entity setImages(direction direction, String imagePath, int width, int height, int count, int startY);
 
     public int getDrawWidth() {
         return drawWidth;
@@ -91,12 +78,20 @@ public abstract class Entity {
         return drawHeight;
     }
 
-    public String getDirection() {
-        return direction;
+    public direction getDrawDirection() {
+        return drawDirection;
     }
 
-    public Entity setDirection(String direction) {
-        this.direction = direction;
+    public void setDrawDirection(direction dir) {
+        drawDirection = dir;
+    }
+
+    public direction getDirection() {
+        return walkDirection;
+    }
+
+    public Entity setDirection(direction direction) {
+        this.walkDirection = direction;
         return this;
     }
 

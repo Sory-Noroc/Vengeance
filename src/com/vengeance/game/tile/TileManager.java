@@ -44,6 +44,7 @@ public class TileManager {
 
     public void getTileImage() {
         try {
+            int[] falseColliders = {130, 162, 180, 30, 46, 146};
             BufferedImage fullTileImage = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/resources/images/tiles/castleTiles.png")));
 
             for (int i = 0; i < tileCount; i++) {
@@ -51,9 +52,9 @@ public class TileManager {
                 setup(i+1, subImg, true);
                 tiles[i+1].setCollision(true);
             }
-            tiles[130].setCollision(false);
-            tiles[162].setCollision(false);
-            tiles[180].setCollision(false);
+            for (int a: falseColliders) {
+                tiles[a].setCollision(false);
+            }
 
         } catch (IOException e) {
             e.printStackTrace();

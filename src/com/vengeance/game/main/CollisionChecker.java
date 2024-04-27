@@ -28,7 +28,7 @@ public class CollisionChecker {
         int[] collidedTiles = new int[3];
 
         switch (entity.getDirection()) {
-            case "up" -> {
+            case WALK_UP -> {
                 entityTopRow = (entityTopWorldY - entity.getSpeed()) / gamePanel.getTileSize();
 
                 collidedTiles[0] = gamePanel.getTileManager().getMapTileNumbers()[entityTopRow][entityLeftCol];
@@ -42,7 +42,8 @@ public class CollisionChecker {
                     entity.setCollisionOn(true);
                 }
             }
-            case "down" -> {
+
+            case WALK_DOWN -> {
                 entityBottomRow = (entityBottomWorldY + entity.getSpeed()) / gamePanel.getTileSize();
 
                 collidedTiles[0] = gamePanel.getTileManager().getMapTileNumbers()[entityBottomRow][entityLeftCol];
@@ -56,7 +57,7 @@ public class CollisionChecker {
                     entity.setCollisionOn(true);
                 }
             }
-            case "left" -> {
+            case WALK_LEFT -> {
                 entityLeftCol = (entityLeftWorldX - entity.getSpeed()) / gamePanel.getTileSize();
 
                 collidedTiles[0] = gamePanel.getTileManager().getMapTileNumbers()[entityTopRow][entityLeftCol];
@@ -70,7 +71,7 @@ public class CollisionChecker {
                     entity.setCollisionOn(true);
                 }
             }
-            case "right" -> {
+            case WALK_RIGHT -> {
                 entityRightCol = (entityRightWorldX + entity.getSpeed()) / gamePanel.getTileSize();
 
                 collidedTiles[0] = gamePanel.getTileManager().getMapTileNumbers()[entityTopRow][entityRightCol];
@@ -100,7 +101,7 @@ public class CollisionChecker {
                 gamePanel.obj[i].solidArea.y = gamePanel.obj[i].worldY + gamePanel.obj[i].solidArea.y;
 
                 switch (entity.getDirection()) {
-                    case "up" -> {
+                    case WALK_UP -> {
                         entity.collisionArea.y -= entity.getSpeed();
                         if (entity.collisionArea.intersects(gamePanel.obj[i].solidArea)) {
                             if (gamePanel.obj[i].collision) {
@@ -111,7 +112,7 @@ public class CollisionChecker {
                             }
                         }
                     }
-                    case "down" -> {
+                    case WALK_DOWN -> {
                         entity.collisionArea.y += entity.getSpeed();
                         if (entity.collisionArea.intersects(gamePanel.obj[i].solidArea)) {
                             if (gamePanel.obj[i].collision) {
@@ -122,7 +123,7 @@ public class CollisionChecker {
                             }
                         }
                     }
-                    case "left" -> {
+                    case WALK_LEFT -> {
                         entity.collisionArea.x -= entity.getSpeed();
                         if (entity.collisionArea.intersects(gamePanel.obj[i].solidArea)) {
                             if (gamePanel.obj[i].collision) {
@@ -133,7 +134,7 @@ public class CollisionChecker {
                             }
                         }
                     }
-                    case "right" -> {
+                    case WALK_RIGHT -> {
                         entity.collisionArea.x += entity.getSpeed();
                         if (entity.collisionArea.intersects(gamePanel.obj[i].solidArea)) {
                             if (gamePanel.obj[i].collision) {

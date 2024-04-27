@@ -2,37 +2,47 @@ package com.vengeance.game.entity;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.Objects;
 
 import com.vengeance.game.main.GamePanel;
 import com.vengeance.game.main.KeyHandler;
+import com.vengeance.game.main.UtilityTool;
 import com.vengeance.game.object.SuperObject;
 
-public class Player extends Entity {
+import javax.imageio.ImageIO;
 
-    private final GamePanel gamePanel;
+import static com.vengeance.game.entity.Entity.direction.*;
+import static java.lang.System.exit;
+
+public class Player extends MobileEntity {
+
     private final KeyHandler keyHandler;
 
     private final int screenX;
     private final int screenY;
+    private final int spriteScale;
+    private int totalSprites = 8;
 
     public int keysGathered = 0;
 
     public Player(GamePanel gamePanel, KeyHandler keyHandler) {
-        this.gamePanel = gamePanel;
+        super(gamePanel);
         this.keyHandler = keyHandler;
+        spriteScale = gamePanel.getScale() - 2;
 
-        width = 52;
-        height = 50;
-        drawWidth = width * gamePanel.getScale();
-        drawHeight = height * gamePanel.getScale();
+        width = 115;
+        height = 84;
+        drawWidth = width * spriteScale;
+        drawHeight = height * spriteScale;
         this.screenX = gamePanel.getScreenWidth() / 2 - (drawWidth / 2);
         this.screenY = gamePanel.getScreenHeight() / 2 - (drawHeight / 2);
 
         setCollisionArea(new Rectangle(
-                16 * gamePanel.getScale(),
-                24 * gamePanel.getScale(),
-                21 * gamePanel.getScale(),
-                19 * gamePanel.getScale()));
+                42 * spriteScale,
+                45 * spriteScale,
+                32 * spriteScale,
+                26 * spriteScale));
 
         solidAreaDefaultX = collisionArea.x;
         solidAreaDefaultY = collisionArea.y;
@@ -45,13 +55,57 @@ public class Player extends Entity {
         setWorldX(gamePanel.getTileSize() * 25);
         setWorldY(gamePanel.getTileSize() * 21);
         setSpeed(4);
-        setDirection("down");
+        setDirection(WALK_RIGHT);
+        setDrawDirection(WALK_RIGHT);
+    }
+
+    public Entity setImages(direction direction, String imagePath, int width, int height, int count, int startY) {
+        BufferedImage sprite = null;
+        try {
+            sprite = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream(imagePath)));
+        } catch (IOException e) {
+            e.printStackTrace();
+            exit(-1);
+        }
+
+        BufferedImage[] dir = null;
+        switch (direction) {
+            case WALK_LEFT: {
+                walkLeft = new BufferedImage[count];
+                dir = walkLeft;
+                break;
+            }
+            case WALK_RIGHT: {
+                walkRight = new BufferedImage[count];
+                dir = walkRight;
+                break;
+            }
+            case IDLE_RIGHT: {
+                idleRight = new BufferedImage[count];
+                dir = idleRight;
+                break;
+            }
+            case IDLE_LEFT: {
+                idleLeft = new BufferedImage[count];
+                dir = idleLeft;
+                break;
+            }
+        }
+        int index = 0;
+        for (int i = 0; i < count; i++) {
+            dir[index] = sprite.getSubimage(width * i, startY + height, width, height);
+            dir[index] = UtilityTool.scaleImage(dir[index], drawWidth, drawHeight);
+            index++;
+        }
+        return this;
     }
 
     public BufferedImage getPlayerImage() {
-         setImages("right", "/resources/images/player/vikingPlayer/walkSheetRight.png", width, height, 2, 3);
-         setImages("left", "/resources/images/player/vikingPlayer/walkSheetLeft.png", width, height, 2, 3);
-         return getRight()[1];
+         setImages(direction.WALK_RIGHT, "/resources/images/player/Viking-Sheet.png", width, height, 8, height);
+         setImages(direction.WALK_LEFT, "/resources/images/player/LeftViking-Sheet.png", width, height, 8, height);
+         setImages(direction.IDLE_LEFT, "/resources/images/player/LeftViking-Sheet.png", width, height, 8, 0);
+         setImages(direction.IDLE_RIGHT, "/resources/images/player/Viking-Sheet.png", width, height, 8, 0);
+         return getWalkRight()[1];
     }
 
     @Override
@@ -64,13 +118,15 @@ public class Player extends Entity {
                 keyHandler.isRightPressed())
         {
             if (keyHandler.isUpPressed()) {
-                setDirection("up");
+                setDirection(WALK_UP);
             } else if (keyHandler.isDownPressed()) {
-                setDirection("down");
+                setDirection(WALK_DOWN);
             } else if (keyHandler.isLeftPressed()) {
-                setDirection("left");
+                setDirection(WALK_LEFT);
+                setDrawDirection(WALK_LEFT);
             } else if (keyHandler.isRightPressed()) {
-                setDirection("right");
+                setDirection(WALK_RIGHT);
+                setDrawDirection(WALK_RIGHT);
             }
 
             checkCollision();
@@ -90,10 +146,10 @@ public class Player extends Entity {
 
         if (!isCollisionOn()) {
             switch (getDirection()) {
-                case "up" -> setWorldY(getWorldY() - getSpeed());
-                case "down" -> setWorldY(getWorldY() + getSpeed());
-                case "left" -> setWorldX(getWorldX() - getSpeed());
-                case "right" -> setWorldX(getWorldX() + getSpeed());
+                case WALK_UP -> setWorldY(getWorldY() - getSpeed());
+                case WALK_DOWN -> setWorldY(getWorldY() + getSpeed());
+                case WALK_LEFT -> setWorldX(getWorldX() - getSpeed());
+                case WALK_RIGHT -> setWorldX(getWorldX() + getSpeed());
             }
         }
     }
@@ -102,13 +158,10 @@ public class Player extends Entity {
         setSpriteCounter(getSpriteCounter() + 1);
         if (getSpriteCounter() > 6) {
 
-            switch (getSpriteNumber()) {
-                case 1: setSpriteNumber(2); break;
-                case 2: setSpriteNumber(3); break;
-                case 3: setSpriteNumber(4); break;
-                case 4: setSpriteNumber(5); break;
-                case 5: setSpriteNumber(6); break;
-                case 6: setSpriteNumber(1); break;
+            if (getSpriteNumber() < totalSprites) {
+                setSpriteNumber(getSpriteNumber() + 1);
+            } else {
+                setSpriteNumber(1);
             }
             setSpriteCounter(0);
         }
@@ -128,7 +181,6 @@ public class Player extends Entity {
                     // some action when we touch a chest
                     gamePanel.ui.setMessage("You opened a chest!");
                 }
-
             }
 
         }
@@ -142,26 +194,12 @@ public class Player extends Entity {
     private BufferedImage getDirectionalImage() {
         BufferedImage image = null;
 
-        switch (getDirection()) {
-            case "left" -> {
-                switch(getSpriteNumber()) {
-                    case 1: image = getLeft()[0]; break;
-                    case 2: image = getLeft()[1]; break;
-                    case 3: image = getLeft()[2]; break;
-                    case 4: image = getLeft()[3]; break;
-                    case 5: image = getLeft()[4]; break;
-                    case 6: image = getLeft()[5]; break;
-                }
+        switch (getDrawDirection()) {
+            case WALK_LEFT -> {
+                image = getWalkLeft()[getSpriteNumber() - 1];
             }
-            default -> {
-                switch (getSpriteNumber()) {
-                    case 1: image = getRight()[0]; break;
-                    case 2: image = getRight()[1]; break;
-                    case 3: image = getRight()[2]; break;
-                    case 4: image = getRight()[3]; break;
-                    case 5: image = getRight()[4]; break;
-                    case 6: image = getRight()[5]; break;
-                }
+            case WALK_RIGHT -> {
+                image = getWalkRight()[getSpriteNumber() - 1];
             }
         }
         return image;

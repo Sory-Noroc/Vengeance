@@ -102,7 +102,6 @@ import java.awt.*;
             }
 
             if (timer >= 1000000000) {
-                System.out.println("FPS: " + drawCount);
                 drawCount = 0;
                 timer = 0;
             }
@@ -118,8 +117,6 @@ import java.awt.*;
 
     public void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
-
-        long start = System.nanoTime();
         Graphics2D graphics2D = (Graphics2D) graphics;
 
         if (gameState == GAME_STATE.MENU_STATE) {
@@ -133,8 +130,6 @@ import java.awt.*;
             }
 
             player.draw(graphics2D);
-            long end = System.nanoTime();
-            System.out.println(end - start);
         }
         ui.draw(graphics2D);
         graphics2D.dispose();
