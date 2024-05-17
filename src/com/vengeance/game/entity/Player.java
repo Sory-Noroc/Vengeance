@@ -21,8 +21,6 @@ public class Player extends MobileEntity {
 
     private final int screenX;
     private final int screenY;
-    private final int spriteScale;
-    private int totalSprites = 8;
 
     public int keysGathered = 0;
 
@@ -30,6 +28,7 @@ public class Player extends MobileEntity {
         super(gamePanel);
         this.keyHandler = keyHandler;
         spriteScale = gamePanel.getScale() - 2;
+        totalSprites = 8;
 
         width = 115;
         height = 84;
@@ -38,14 +37,20 @@ public class Player extends MobileEntity {
         this.screenX = gamePanel.getScreenWidth() / 2 - (drawWidth / 2);
         this.screenY = gamePanel.getScreenHeight() / 2 - (drawHeight / 2);
 
-        setCollisionArea(new Rectangle(
+        setAttackArea(24, 10);
+        setCollisionArea(
+                new Rectangle(
                 42 * spriteScale,
                 45 * spriteScale,
                 32 * spriteScale,
-                26 * spriteScale));
+                26 * spriteScale)
+        );
 
         solidAreaDefaultX = collisionArea.x;
         solidAreaDefaultY = collisionArea.y;
+
+        maxLife = 6;
+        life = maxLife;
 
         setDefaultValues();
         getPlayerImage();
@@ -55,68 +60,36 @@ public class Player extends MobileEntity {
         setWorldX(gamePanel.getTileSize() * 25);
         setWorldY(gamePanel.getTileSize() * 21);
         setSpeed(4);
+        life = maxLife;
+        invincible = false;
+        invincibleCount = 0;
+        keysGathered = 0;
         setDirection(WALK_RIGHT);
         setDrawDirection(WALK_RIGHT);
     }
 
-    public Entity setImages(direction direction, String imagePath, int width, int height, int count, int startY) {
-        BufferedImage sprite = null;
-        try {
-            sprite = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream(imagePath)));
-        } catch (IOException e) {
-            e.printStackTrace();
-            exit(-1);
-        }
-
-        BufferedImage[] dir = null;
-        switch (direction) {
-            case WALK_LEFT: {
-                walkLeft = new BufferedImage[count];
-                dir = walkLeft;
-                break;
-            }
-            case WALK_RIGHT: {
-                walkRight = new BufferedImage[count];
-                dir = walkRight;
-                break;
-            }
-            case IDLE_RIGHT: {
-                idleRight = new BufferedImage[count];
-                dir = idleRight;
-                break;
-            }
-            case IDLE_LEFT: {
-                idleLeft = new BufferedImage[count];
-                dir = idleLeft;
-                break;
-            }
-        }
-        int index = 0;
-        for (int i = 0; i < count; i++) {
-            dir[index] = sprite.getSubimage(width * i, startY + height, width, height);
-            dir[index] = UtilityTool.scaleImage(dir[index], drawWidth, drawHeight);
-            index++;
-        }
-        return this;
-    }
-
     public BufferedImage getPlayerImage() {
-         setImages(direction.WALK_RIGHT, "/resources/images/player/Viking-Sheet.png", width, height, 8, height);
-         setImages(direction.WALK_LEFT, "/resources/images/player/LeftViking-Sheet.png", width, height, 8, height);
-         setImages(direction.IDLE_LEFT, "/resources/images/player/LeftViking-Sheet.png", width, height, 8, 0);
-         setImages(direction.IDLE_RIGHT, "/resources/images/player/Viking-Sheet.png", width, height, 8, 0);
-         return getWalkRight()[1];
+        setImages(direction.WALK_LEFT, "/resources/images/player/LeftViking-Sheet.png", width, height, 8, height);
+        setImages(direction.WALK_RIGHT, "/resources/images/player/Viking-Sheet.png", width, height, 8, height);
+        setImages(direction.IDLE_LEFT, "/resources/images/player/LeftViking-Sheet.png", width, height, 8, 0);
+        setImages(direction.IDLE_RIGHT, "/resources/images/player/Viking-Sheet.png", width, height, 8, 0);
+        setImages(direction.ATTACK_LEFT, "/resources/images/player/LeftViking-Sheet.png", width, height, 4, 8*height);
+        setImages(direction.ATTACK_RIGHT, "/resources/images/player/Viking-Sheet.png", width, height, 4, 8*height);
+        return getWalkRight()[1];
     }
 
     @Override
-    public void update() {
+    protected void hit() {
+        super.hit();
+        gamePanel.playSE(2);
+    }
 
-        if (
-                keyHandler.isUpPressed() ||
+    private boolean checkKeysPressed() {
+        if (keyHandler.isUpPressed() ||
                 keyHandler.isDownPressed() ||
                 keyHandler.isLeftPressed() ||
-                keyHandler.isRightPressed())
-        {
+                keyHandler.isRightPressed() ||
+                keyHandler.spacePressed) {
             if (keyHandler.isUpPressed()) {
                 setDirection(WALK_UP);
             } else if (keyHandler.isDownPressed()) {
@@ -128,42 +101,59 @@ public class Player extends MobileEntity {
                 setDirection(WALK_RIGHT);
                 setDrawDirection(WALK_RIGHT);
             }
-
-            checkCollision();
-            moveIfCollisionNotDetected();
-            checkAndChangeSpriteAnimation();
+            return true;
         }
+        return false;
     }
 
-    private void checkCollision() {
-        setCollisionOn(false);
-        gamePanel.getCollisionChecker().checkTile(this);
-    }
+    @Override
+    public void update() {
 
-    private void moveIfCollisionNotDetected() {
+        updateInvincible();
+
+        // Attacking
+        if (isAttacking) {
+            int enemyIndex = gamePanel.getCollisionChecker().checkEntity(this, gamePanel.enemy, true);
+            damageEnemy(enemyIndex);
+            attackAnimation();
+        } else if (checkKeysPressed()) {
+            collisionSpriteAndMovement();
+        }
+
         int objIndex = gamePanel.getCollisionChecker().checkObject(this, true);
         interactWithObject(objIndex);
 
-        if (!isCollisionOn()) {
-            switch (getDirection()) {
-                case WALK_UP -> setWorldY(getWorldY() - getSpeed());
-                case WALK_DOWN -> setWorldY(getWorldY() + getSpeed());
-                case WALK_LEFT -> setWorldX(getWorldX() - getSpeed());
-                case WALK_RIGHT -> setWorldX(getWorldX() + getSpeed());
+        int npcIndex = gamePanel.getCollisionChecker().checkEntity(this, gamePanel.npc);
+        interactWithNPC(npcIndex);
+
+        int enemyIndex = gamePanel.getCollisionChecker().checkEntity(this, gamePanel.enemy);
+        getHitByEnemy(enemyIndex);
+
+        gamePanel.eventHandler.checkEvent();
+
+        if (life <= 0) {
+            gamePanel.gameState = GamePanel.GAME_STATE.GAME_OVER_STATE;
+        }
+    }
+
+    private void damageEnemy(int i) {
+        if (i != -1) {
+
+            if (!gamePanel.enemy[i].invincible) {
+                gamePanel.enemy[i].hit();
+
+                if (gamePanel.enemy[i].life <= 0) {
+                    gamePanel.enemy[i] = null;
+                }
             }
         }
     }
 
-    private void checkAndChangeSpriteAnimation() {
-        setSpriteCounter(getSpriteCounter() + 1);
-        if (getSpriteCounter() > 6) {
-
-            if (getSpriteNumber() < totalSprites) {
-                setSpriteNumber(getSpriteNumber() + 1);
-            } else {
-                setSpriteNumber(1);
+    private void getHitByEnemy(int i) {
+        if (i != -1) {
+            if (!invincible) {
+                hit();
             }
-            setSpriteCounter(0);
         }
     }
 
@@ -182,27 +172,30 @@ public class Player extends MobileEntity {
                     gamePanel.ui.setMessage("You opened a chest!");
                 }
             }
+        }
+    }
 
+    private void interactWithNPC(int i) {
+        if (gamePanel.keyHandler.enterPressed) {
+            if (i != -1) {
+                gamePanel.gameState = GamePanel.GAME_STATE.DIALOG_STATE;
+                gamePanel.npc[i].speak();
+            }
+        }
+        if (gamePanel.keyHandler.spacePressed) {
+            setAttacking(true);
         }
     }
 
     @Override
     public void draw(Graphics2D graphics2D) {
-        graphics2D.drawImage(getDirectionalImage(), screenX, screenY, null);
-    }
-
-    private BufferedImage getDirectionalImage() {
-        BufferedImage image = null;
-
-        switch (getDrawDirection()) {
-            case WALK_LEFT -> {
-                image = getWalkLeft()[getSpriteNumber() - 1];
-            }
-            case WALK_RIGHT -> {
-                image = getWalkRight()[getSpriteNumber() - 1];
-            }
+        if (invincible) {
+            graphics2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
         }
-        return image;
+        graphics2D.drawImage(getDirectionalImage(), screenX, screenY, null);
+        graphics2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+        drawDebugRects(graphics2D, screenX, screenY);
+
     }
 
     public int getScreenX() {

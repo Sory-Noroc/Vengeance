@@ -1,6 +1,5 @@
 package com.vengeance.game.entity;
 
-
 import com.vengeance.game.main.GamePanel;
 
 import java.awt.*;
@@ -9,13 +8,16 @@ import java.awt.image.BufferedImage;
 public abstract class Entity {
 
     protected GamePanel gamePanel;
-    private int worldX, worldY;
-    public enum direction {WALK_LEFT, WALK_RIGHT, WALK_UP, WALK_DOWN, IDLE_LEFT, IDLE_RIGHT};
+    public int worldX, worldY;
+    public enum direction { WALK_LEFT, WALK_RIGHT, WALK_UP, WALK_DOWN, IDLE_LEFT, IDLE_RIGHT, ATTACK_LEFT, ATTACK_RIGHT }
+
     public int speed;
     public BufferedImage[] walkLeft;
     public BufferedImage[] walkRight;
     public BufferedImage[] idleLeft;
     public BufferedImage[] idleRight;
+    public BufferedImage[] attackLeft;
+    public BufferedImage[] attackRight;
     public direction walkDirection;
     public direction drawDirection;
     private int spriteCounter = 0;
@@ -25,6 +27,7 @@ public abstract class Entity {
     protected int width, height;
     protected int drawWidth, drawHeight;
     public int solidAreaDefaultX, solidAreaDefaultY;
+    public int maxLife, life;
 
     public abstract void update();
     public abstract void draw(Graphics2D graphics2D);
@@ -37,27 +40,24 @@ public abstract class Entity {
         return worldX;
     }
 
-    public Entity setWorldX(int worldX) {
+    public void setWorldX(int worldX) {
         this.worldX = worldX;
-        return this;
     }
 
     public int getWorldY() {
         return worldY;
     }
 
-    public Entity setWorldY(int worldY) {
+    public void setWorldY(int worldY) {
         this.worldY = worldY;
-        return this;
     }
 
     public int getSpeed() {
         return speed;
     }
 
-    public Entity setSpeed(int speed) {
+    public void setSpeed(int speed) {
         this.speed = speed;
-        return this;
     }
 
     public BufferedImage[] getWalkRight() {
@@ -68,7 +68,11 @@ public abstract class Entity {
         return walkLeft;
     }
 
-    public abstract Entity setImages(direction direction, String imagePath, int width, int height, int count, int startY);
+    protected BufferedImage[] getAttackRight() { return attackRight; }
+
+    protected BufferedImage[] getAttackLeft() { return attackLeft; }
+
+    public abstract void setImages(direction direction, String imagePath, int width, int height, int count, int startY);
 
     public int getDrawWidth() {
         return drawWidth;
@@ -90,44 +94,39 @@ public abstract class Entity {
         return walkDirection;
     }
 
-    public Entity setDirection(direction direction) {
+    public void setDirection(direction direction) {
         this.walkDirection = direction;
-        return this;
     }
 
     public int getSpriteCounter() {
         return spriteCounter;
     }
 
-    public Entity setSpriteCounter(int spriteCounter) {
+    public void setSpriteCounter(int spriteCounter) {
         this.spriteCounter = spriteCounter;
-        return this;
     }
 
     public int getSpriteNumber() {
         return spriteNumber;
     }
 
-    public Entity setSpriteNumber(int spriteNumber) {
+    public void setSpriteNumber(int spriteNumber) {
         this.spriteNumber = spriteNumber;
-        return this;
     }
 
     public Rectangle getCollisionArea() {
         return collisionArea;
     }
 
-    public Entity setCollisionArea(Rectangle collisionArea) {
+    public void setCollisionArea(Rectangle collisionArea) {
         this.collisionArea = collisionArea;
-        return this;
     }
 
     public boolean isCollisionOn() {
         return collisionOn;
     }
 
-    public Entity setCollisionOn(boolean collisionOn) {
+    public void setCollisionOn(boolean collisionOn) {
         this.collisionOn = collisionOn;
-        return this;
     }
 }

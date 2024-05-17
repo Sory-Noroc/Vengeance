@@ -44,7 +44,7 @@ public class TileManager {
 
     public void getTileImage() {
         try {
-            int[] falseColliders = {130, 162, 180, 30, 46, 146};
+            int[] falseColliders = {130, 162, 180, 179, 30, 46, 146, 11, 12, 13, 27, 28, 29, 43, 44, 45};
             BufferedImage fullTileImage = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/resources/images/tiles/castleTiles.png")));
 
             for (int i = 0; i < tileCount; i++) {

@@ -9,7 +9,7 @@ import java.io.IOException;
 public class Main {
 
     public static void main(String[] args) {
-        mirrorImage("C:\\Users\\sorin\\OneDrive\\Desktop\\Uni\\An 2\\Sem 2\\PAOO\\VengeanceGame\\src\\resources\\images\\player\\Viking-Sheet.png", "C:\\Users\\sorin\\OneDrive\\Desktop\\Uni\\An 2\\Sem 2\\PAOO\\VengeanceGame\\src\\resources\\images\\player\\LeftViking-Sheet.png");
+//        mirrorImage("C:\\Users\\sorin\\OneDrive\\Desktop\\Uni\\An 2\\Sem 2\\PAOO\\VengeanceGame\\src\\resources\\images\\enemies\\Fire_Warrior.png", "C:\\Users\\sorin\\OneDrive\\Desktop\\Uni\\An 2\\Sem 2\\PAOO\\VengeanceGame\\src\\resources\\images\\enemies\\leftFire_Warrior.png");
         JFrame window = new JFrame();
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setResizable(false);
@@ -47,7 +47,7 @@ public class Main {
         int fullWidth = fullImg.getWidth();
         int fullHeight = fullImg.getHeight();
 
-        int width = 115, height = 84, rows = 13, cols = 24;
+        int width = 144, height = 80, rows = 16, cols = 25;
 
         // BufferedImage for mirror image
         BufferedImage mimg = new BufferedImage(

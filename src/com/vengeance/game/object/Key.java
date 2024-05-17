@@ -1,6 +1,7 @@
 package com.vengeance.game.object;
 
 import com.vengeance.game.Animation;
+import com.vengeance.game.entity.Entity;
 import com.vengeance.game.main.GamePanel;
 
 import javax.imageio.ImageIO;
