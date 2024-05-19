@@ -9,7 +9,7 @@ import java.io.IOException;
 public class Main {
 
     public static void main(String[] args) {
-//        mirrorImage("C:\\Users\\sorin\\OneDrive\\Desktop\\Uni\\An 2\\Sem 2\\PAOO\\VengeanceGame\\src\\resources\\images\\enemies\\Fire_Warrior.png", "C:\\Users\\sorin\\OneDrive\\Desktop\\Uni\\An 2\\Sem 2\\PAOO\\VengeanceGame\\src\\resources\\images\\enemies\\leftFire_Warrior.png");
+//        mirrorImage("C:\\Users\\sorin\\OneDrive\\Desktop\\Uni\\An 2\\Sem 2\\PAOO\\VengeanceGame\\src\\resources\\images\\enemies\\FireWarrior.png", "C:\\Users\\sorin\\OneDrive\\Desktop\\Uni\\An 2\\Sem 2\\PAOO\\VengeanceGame\\src\\resources\\images\\enemies\\leftFireWarrior.png");
         JFrame window = new JFrame();
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setResizable(false);

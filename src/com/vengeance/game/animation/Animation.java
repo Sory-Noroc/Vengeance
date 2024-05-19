@@ -1,4 +1,4 @@
-package com.vengeance.game;
+package com.vengeance.game.animation;
 
 import java.awt.image.BufferedImage;
 

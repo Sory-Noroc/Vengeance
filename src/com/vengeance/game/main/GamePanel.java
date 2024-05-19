@@ -1,21 +1,22 @@
 package com.vengeance.game.main;
 
-import com.vengeance.game.AnimationFactory;
+import com.vengeance.game.animation.AnimationFactory;
 import com.vengeance.game.entity.*;
+import com.vengeance.game.events.EventHandler;
+import com.vengeance.game.events.KeyHandler;
 import com.vengeance.game.object.SuperObject;
 import com.vengeance.game.tile.TileManager;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 
 public class GamePanel extends JPanel implements Runnable {
 
     static GamePanel INSTANCE = null;
 
-    public enum GAME_STATE { PLAY_STATE, PAUSE_STATE, MENU_STATE, DIALOG_STATE, GAME_OVER_STATE }
+    public enum GAME_STATE { PLAY_STATE, PAUSE_STATE, MENU_STATE, DIALOG_STATE, GAME_OVER_STATE, WON_STATE }
 
     // SCREEN SETTINGS
     private final int originalTileSize = 8;
@@ -32,6 +33,8 @@ public class GamePanel extends JPanel implements Runnable {
     private final int maxWorldRows = 50;
     private final int worldWidth = tileSize * maxWorldColumns;
     private final int worldHeight = tileSize * maxWorldRows;
+    public final int maxMap = 4;
+    public int currentMap = 0;
 
     // FPS
     private final int FPS = 60;
@@ -47,9 +50,9 @@ public class GamePanel extends JPanel implements Runnable {
     public final Player player = new Player(this, keyHandler);
     public Sound music = new Sound();
     public Sound se = new Sound();
-    public SuperObject[] obj = new SuperObject[10];
-    public MobileEntity[] npc = new MobileEntity[10];
-    public MobileEntity[] enemy = new MobileEntity[10];
+    public SuperObject[][] obj = new SuperObject[maxMap][10];
+    public MobileEntity[][] npc = new MobileEntity[maxMap][10];
+    public MobileEntity[][] enemy = new MobileEntity[maxMap][10];
     ArrayList<Entity> entityList = new ArrayList<>();
     public UI ui = new UI(this);
     public EventHandler eventHandler = new EventHandler(this);
@@ -119,15 +122,15 @@ public class GamePanel extends JPanel implements Runnable {
             AnimationFactory.updateAnimations();
             player.update();
             // NPC update
-            for (int i = 0; i < npc.length; i++) {
-                if (npc[i] != null) {
-                    npc[i].update();
+            for (int i = 0; i < npc[currentMap].length; i++) {
+                if (npc[currentMap][i] != null) {
+                    npc[currentMap][i].update();
                 }
             }
 
-            for (int i = 0; i < enemy.length; i++) {
-                if (enemy[i] != null) {
-                    enemy[i].update();
+            for (int i = 0; i < enemy[currentMap].length; i++) {
+                if (enemy[currentMap][i] != null) {
+                    enemy[currentMap][i].update();
                 }
             }
         }
@@ -137,26 +140,25 @@ public class GamePanel extends JPanel implements Runnable {
         super.paintComponent(graphics);
         Graphics2D graphics2D = (Graphics2D) graphics;
 
-        if (gameState == GAME_STATE.MENU_STATE) {
-        } else {
+        if (gameState != GAME_STATE.MENU_STATE) {
             tileManager.draw(graphics2D);
 
             entityList.add(player);
-            for (int i = 0; i < npc.length; i++) {
-                if (npc[i] != null) {
-                    entityList.add(npc[i]);
+            for (int i = 0; i < npc[currentMap].length; i++) {
+                if (npc[currentMap][i] != null) {
+                    entityList.add(npc[currentMap][i]);
                 }
             }
 
-            for (int i = 0; i < obj.length; i++) {
-                if (obj[i] != null) {
-                    entityList.add(obj[i]);
+            for (int i = 0; i < obj[currentMap].length; i++) {
+                if (obj[currentMap][i] != null) {
+                    entityList.add(obj[currentMap][i]);
                 }
             }
 
-            for (int i = 0; i < enemy.length; i++) {
-                if (enemy[i] != null) {
-                    entityList.add(enemy[i]);
+            for (int i = 0; i < enemy[currentMap].length; i++) {
+                if (enemy[currentMap][i] != null) {
+                    entityList.add(enemy[currentMap][i]);
                 }
             }
 
@@ -168,6 +170,12 @@ public class GamePanel extends JPanel implements Runnable {
                 entityList.get(i).draw(graphics2D);
             }
             entityList.clear();
+
+            // Debugging player position
+            int x = 10, y = 400;
+            graphics2D.drawString("Col: " + (player.worldX + player.collisionArea.x)/getTileSize(), x, y);
+            y += 30;
+            graphics2D.drawString("Row: " + (player.worldY + player.collisionArea.y)/getTileSize(), x, y);
         }
         ui.draw(graphics2D);
         graphics2D.dispose();
@@ -177,14 +185,6 @@ public class GamePanel extends JPanel implements Runnable {
 
     public int getTileSize() {
         return tileSize;
-    }
-
-    public int getMaxScreenColumns() {
-        return maxScreenColumns;
-    }
-
-    public int getMaxScreenRows() {
-        return maxScreenRows;
     }
 
     public int getScreenWidth() {
@@ -201,14 +201,6 @@ public class GamePanel extends JPanel implements Runnable {
 
     public int getMaxWorldRows() {
         return maxWorldRows;
-    }
-
-    public int getWorldWidth() {
-        return worldWidth;
-    }
-
-    public int getWorldHeight() {
-        return worldHeight;
     }
 
     public TileManager getTileManager() {

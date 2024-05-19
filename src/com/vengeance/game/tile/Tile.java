@@ -1,6 +1,6 @@
 package com.vengeance.game.tile;
 
-import com.vengeance.game.Animation;
+import com.vengeance.game.animation.Animation;
 
 import java.awt.image.BufferedImage;
 

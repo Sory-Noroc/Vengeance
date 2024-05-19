@@ -2,7 +2,6 @@ package com.vengeance.game.main;
 
 import com.vengeance.game.object.Heart;
 import com.vengeance.game.object.Key;
-
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -54,6 +53,7 @@ public class UI {
 
     public void showMessageIfExists(Graphics2D g, int x, int y) {
         if (messageOn == true) {
+            g.setColor(Color.white);
             g.setFont(norse_80.deriveFont(Font.PLAIN, 30));
             g.drawString(message, x, y);
             messageCounter++;
@@ -93,7 +93,9 @@ public class UI {
     public void draw(Graphics2D g) {
         if (gamePanel.gameState == GamePanel.GAME_STATE.PLAY_STATE) {
             showPlayerLife(g);
-            showKeyCount(g);
+            if (gamePanel.currentMap == 0) {
+                showKeyCount(g);
+            }
             showMessageIfExists(g, gamePanel.getTileSize()/2, gamePanel.getTileSize()*7);
         } else if (gamePanel.gameState == GamePanel.GAME_STATE.PAUSE_STATE) {
             showPlayerLife(g);
@@ -105,20 +107,25 @@ public class UI {
             showPlayerLife(g);
             drawDialogueScreen(g);
         } else if (gamePanel.gameState == GamePanel.GAME_STATE.GAME_OVER_STATE) {
-            drawGameOverScreen(g);
+            drawGameOverScreen(g, "You died!", "Retry");
+
+        } else if (gamePanel.gameState == GamePanel.GAME_STATE.WON_STATE) {
+            drawGameOverScreen(g, "YOU WON!", "Continue");
         }
     }
 
-    public void drawGameOverScreen(Graphics2D g) {
-        g.setColor(new Color(0,0,0,150));
-        g.fillRect(0, 0, gamePanel.getScreenWidth(), gamePanel.getScreenHeight());
+    public void drawGameOverScreen(Graphics2D g, String text, String secondText) {
+        if (gamePanel.gameState == GamePanel.GAME_STATE.WON_STATE) {
+            drawBackground(g, "/resources/images/backgrounds/endGame.jpg");
+        } else {
+            g.setColor(new Color(0, 0, 0, 150));
+            g.fillRect(0, 0, gamePanel.getScreenWidth(), gamePanel.getScreenHeight());
+        }
 
         int x;
         int y;
-        String text;
         g.setFont(g.getFont().deriveFont(Font.BOLD, 110f));
 
-        text = "You died!";
         g.setColor(Color.black);
         x = getXCentered(g, text);
         y = gamePanel.getTileSize() * 10;
@@ -128,10 +135,9 @@ public class UI {
         g.drawString(text, x-4, y-4);
 
         g.setFont(g.getFont().deriveFont(50f));
-        text = "Retry";
-        x = getXCentered(g, text);
+        x = getXCentered(g, secondText);
         y += gamePanel.getTileSize() * 5;
-        g.drawString(text, x, y);
+        g.drawString(secondText, x, y);
         if (commandNum == 0) {
             g.drawString(">", x-40, y);
         }
@@ -171,8 +177,7 @@ public class UI {
         g.drawRect(x+5, y+5, width-10, height-10);
     }
 
-    public void drawTitleScreen(Graphics2D g) {
-        String imagePath = "/resources/images/backgrounds/menuBackground.jpg";
+    private void drawBackground(Graphics2D g, String imagePath) {
         BufferedImage background = null;
         try {
             background = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream(imagePath)));
@@ -180,6 +185,11 @@ public class UI {
             e.printStackTrace();
         }
         g.drawImage(background, 0, 0, gamePanel.getScreenWidth(), gamePanel.getScreenHeight(), null);
+    }
+
+    public void drawTitleScreen(Graphics2D g) {
+        String imagePath = "/resources/images/backgrounds/menuBackground.jpg";
+        drawBackground(g, imagePath);
 
         String title = "Vengeance";
         g.setFont(norse_80);

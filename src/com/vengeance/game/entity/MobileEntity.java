@@ -14,6 +14,7 @@ import static java.lang.System.exit;
 
 public abstract class MobileEntity extends Entity {
 
+    int damage = 1;
     public int hpX, hpY;
     protected int healthBarWidth = 100, healthBarHeight = 10;
     protected int totalSprites;
@@ -25,11 +26,9 @@ public abstract class MobileEntity extends Entity {
     protected boolean invincible = false;
     protected int invincibleCount = 0;
     protected boolean isAttacking = false;
-    public Rectangle attackArea;
 
     public MobileEntity(GamePanel gamePanel) {
         super(gamePanel);
-        attackArea = collisionArea;
     }
 
     protected void setHealthBarPos(int screenX, int screenY) {
@@ -39,8 +38,8 @@ public abstract class MobileEntity extends Entity {
 
     protected void hit() {
         if (!invincible) {
-        life--;
-        invincible = true;
+            life--;
+            invincible = true;
         }
     }
 
@@ -82,13 +81,6 @@ public abstract class MobileEntity extends Entity {
             }
             clock = 0;
         }
-    }
-
-    protected void setAttackArea(int x, int y) {
-        attackArea.x = x * spriteScale;
-        attackArea.y = y * spriteScale;
-        attackArea.width = (width - x * 2) * spriteScale;
-        attackArea.height = (height - y * 2) * spriteScale;
     }
 
     @Override
@@ -206,6 +198,9 @@ public abstract class MobileEntity extends Entity {
         setSpriteCounter(getSpriteCounter() + 1);
         if (getSpriteCounter() > 4) {
             if (getSpriteNumber() < totalSprites) {
+                if (getSpriteNumber() == 1) {
+                    gamePanel.playSE(3);
+                }
                 setSpriteNumber(getSpriteNumber() + 1);
             } else {
                 // spriteNumber is more than 4
@@ -222,13 +217,10 @@ public abstract class MobileEntity extends Entity {
         updateInvincible();
     }
 
-    public void drawDebugRects(Graphics2D g, int screenX, int screenY) {
-        g.setColor(Color.BLACK);
-        g.drawRect(screenX + collisionArea.x, screenY + collisionArea.y, collisionArea.width, collisionArea.height);
-        g.setColor(Color.RED);
-        g.drawRect(screenX + attackArea.x, screenY + attackArea.y, attackArea.width, attackArea.height);
-
-    }
+//    public void drawDebugRects(Graphics2D g, int screenX, int screenY) {
+//        g.setColor(Color.BLACK);
+//        g.drawRect(screenX + collisionArea.x, screenY + collisionArea.y, collisionArea.width, collisionArea.height);
+//    }
 
     @Override
     public void draw(Graphics2D g) {
@@ -250,7 +242,7 @@ public abstract class MobileEntity extends Entity {
                 g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
             }
             g.drawImage(getDirectionalImage(), screenX, screenY, drawWidth, drawHeight, null);
-            drawDebugRects(g, screenX, screenY);
+//            drawDebugRects(g, screenX, screenY);
             //
         }
     }

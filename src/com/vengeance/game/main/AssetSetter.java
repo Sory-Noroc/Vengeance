@@ -1,6 +1,8 @@
 package com.vengeance.game.main;
 
+import com.vengeance.game.entity.Boss;
 import com.vengeance.game.entity.FireWarrior;
+import com.vengeance.game.entity.Warrior;
 import com.vengeance.game.entity.KingNPC;
 import com.vengeance.game.object.*;
 
@@ -13,43 +15,85 @@ public class AssetSetter {
     }
 
     public void setObjects() {
+
+        int mapNum = 0;
         int[][] keyCoords = {
                 {20, 10},
                 {10, 10},
                 {20, 40},
                 {40, 41},
-                {40, 10}
+                {40, 10},
+                {5, 40},
+                {2, 20},
+                {15, 27}
         };
 
-        gp.obj[0] = new Chest(gp);
-        gp.obj[0].worldX = 14 * gp.getTileSize();
-        gp.obj[0].worldY = 14 * gp.getTileSize();
+//        gp.obj[mapNum][0] = new Chest(gp);
+//        gp.obj[mapNum][0].worldX = 14 * gp.getTileSize();
+//        gp.obj[mapNum][0].worldY = 14 * gp.getTileSize();
 
         for (int i = 1; i <= keyCoords.length; i++) {
-            gp.obj[i] = new Key(gp);
-            gp.obj[i].worldX = keyCoords[i-1][0] * gp.getTileSize();
-            gp.obj[i].worldY = keyCoords[i-1][1] * gp.getTileSize();
+            gp.obj[mapNum][i] = new Key(gp);
+            gp.obj[mapNum][i].worldX = keyCoords[i-1][0] * gp.getTileSize();
+            gp.obj[mapNum][i].worldY = keyCoords[i-1][1] * gp.getTileSize();
         }
     }
 
     public void setNPCs() {
-        gp.npc[0] = new KingNPC(gp);
-        gp.npc[0].worldX = 18 * gp.getTileSize();
-        gp.npc[0].worldY = 37 * gp.getTileSize();
+        int mapNum = 1;
+        gp.npc[mapNum][0] = new KingNPC(gp);
+        gp.npc[mapNum][0].worldX = 2 * gp.getTileSize();
+        gp.npc[mapNum][0].worldY = 7 * gp.getTileSize();
+
+        mapNum = 1;
     }
 
     public void setEnemies() {
-        int[][] enemyCoords = {
-                {10, 10},
-                {28,  7},
-                {20, 40},
-                {40, 38},
-                {40, 10}
+        int mapNum = 0;
+        int[][][] enemyCoords = {
+                {
+                        {10, 10},
+                        {28, 7},
+//                        {20, 40},
+//                        {40, 38},
+//                        {40, 10},
+                },
+
+                {
+                        {5, 9},
+                        {20, 10},
+                        {30, 8},
+                        {40, 10},
+                        {3, 24},
+                        {10, 26},
+                        {30, 25},
+                        {10, 39},
+                        {25, 40},
+                },
+                {
+                        {24, 11}
+                }
+
         };
-        for (int i = 0; i < enemyCoords.length; i++) {
-            gp.enemy[i] = new FireWarrior(gp);
-            gp.enemy[i].worldX = gp.getTileSize() * enemyCoords[i][0];
-            gp.enemy[i].worldY = gp.getTileSize() * enemyCoords[i][1];
+
+        for (int i = 0; i < enemyCoords[mapNum].length; i++) {
+            gp.enemy[mapNum][i] = new Warrior(gp);
+            gp.enemy[mapNum][i].worldX = gp.getTileSize() * enemyCoords[mapNum][i][0];
+            gp.enemy[mapNum][i].worldY = gp.getTileSize() * enemyCoords[mapNum][i][1];
         }
+
+        mapNum = 1;
+        // Enemies in second map
+        for (int i = 0; i < enemyCoords[mapNum].length; i++) {
+            gp.enemy[mapNum][i] = new FireWarrior(gp);
+            gp.enemy[mapNum][i].worldX = gp.getTileSize() * enemyCoords[mapNum][i][0];
+            gp.enemy[mapNum][i].worldY = gp.getTileSize() * enemyCoords[mapNum][i][1];
+        }
+
+        mapNum = 2;
+        // Boss fight
+        gp.enemy[mapNum][0] = new Boss(gp);
+        gp.enemy[mapNum][0].worldX = gp.getTileSize() * enemyCoords[mapNum][0][0];
+        gp.enemy[mapNum][0].worldY = gp.getTileSize() * enemyCoords[mapNum][0][1];
     }
 }

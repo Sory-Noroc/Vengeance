@@ -1,4 +1,4 @@
-package com.vengeance.game.main;
+package com.vengeance.game.events;
 
 import java.awt.*;
 

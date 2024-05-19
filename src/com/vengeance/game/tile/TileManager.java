@@ -1,6 +1,6 @@
 package com.vengeance.game.tile;
 
-import com.vengeance.game.AnimationFactory;
+import com.vengeance.game.animation.AnimationFactory;
 import com.vengeance.game.main.GamePanel;
 import com.vengeance.game.entity.Player;
 import com.vengeance.game.main.UtilityTool;
@@ -20,15 +20,17 @@ public class TileManager {
     private final int tileCount = 256;
     private final int tileSize = 8;
     private final Tile[] tiles;
-    private final int[][] mapTileNumbers;
+    private final int[][][] mapTileNumbers;
 
     public TileManager(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
         this.tiles = new Tile[tileCount + 1];
-        this.mapTileNumbers = new int[gamePanel.getMaxWorldColumns()][gamePanel.getMaxWorldRows()];
+        this.mapTileNumbers = new int[gamePanel.maxMap][gamePanel.getMaxWorldColumns()][gamePanel.getMaxWorldRows()];
 
         getTileImage();
-        loadMap("/resources/maps/level1.txt");
+        loadMap("/resources/maps/level1.txt", 0);
+        loadMap("/resources/maps/level2.txt", 1);
+        loadMap("/resources/maps/level3.txt", 2);
     }
 
     public void setup(int index, BufferedImage image, boolean collision) {
@@ -44,7 +46,7 @@ public class TileManager {
 
     public void getTileImage() {
         try {
-            int[] falseColliders = {130, 162, 180, 179, 30, 46, 146, 11, 12, 13, 27, 28, 29, 43, 44, 45};
+            int[] falseColliders = { 11, 12, 13, 27, 28, 29, 43, 44, 45, 130, 162, 180, 179, 30, 46, 146, 217 };
             BufferedImage fullTileImage = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/resources/images/tiles/castleTiles.png")));
 
             for (int i = 0; i < tileCount; i++) {
@@ -61,7 +63,7 @@ public class TileManager {
         }
     }
 
-    public void loadMap(String mapPath) {
+    public void loadMap(String mapPath, int map) {
         try {
             int column = 0;
             int row = 0;
@@ -82,7 +84,7 @@ public class TileManager {
                 while (column < gamePanel.getMaxWorldColumns()) {
                     int tileNumber = Integer.parseInt(mapString[row * gamePanel.getMaxWorldRows() + column]);
 
-                    mapTileNumbers[row][column] = tileNumber;
+                    mapTileNumbers[map][row][column] = tileNumber;
                     for (int i = 0; i < animatedTileNumbers.length; i++) {
                         if (animatedTileNumbers[i] == tileNumber) {
                             tiles[tileNumber].setAnimation(AnimationFactory.createAnimation(
@@ -113,7 +115,7 @@ public class TileManager {
 
         while (worldColumn < gamePanel.getMaxWorldColumns() && worldRow < gamePanel.getMaxWorldRows()) {
 
-            int tileNumber = mapTileNumbers[worldRow][worldColumn];
+            int tileNumber = mapTileNumbers[gamePanel.currentMap][worldRow][worldColumn];
             Player player = gamePanel.getPlayer();
 
             // x and y for the tile in comparison with whole map
@@ -143,7 +145,7 @@ public class TileManager {
         return tiles;
     }
 
-    public int[][] getMapTileNumbers() {
-        return mapTileNumbers;
+    public int[][] getCurrentMapTileNumbers() {
+        return mapTileNumbers[gamePanel.currentMap];
     }
 }

@@ -13,6 +13,8 @@ public class Sound {
         soundURL[0] = getClass().getResource("/resources/sounds/mainSound.wav");
         soundURL[1] = getClass().getResource("/resources/sounds/ItemPickUp.wav");
         soundURL[2] = getClass().getResource("/resources/sounds/playerHurt.wav");
+        soundURL[3] = getClass().getResource("/resources/sounds/sword.wav");
+        soundURL[4] = getClass().getResource("/resources/sounds/door.wav");
     }
 
     public void setFile(int i) {

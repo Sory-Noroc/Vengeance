@@ -2,18 +2,12 @@ package com.vengeance.game.entity;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.Objects;
 
 import com.vengeance.game.main.GamePanel;
-import com.vengeance.game.main.KeyHandler;
-import com.vengeance.game.main.UtilityTool;
+import com.vengeance.game.events.KeyHandler;
 import com.vengeance.game.object.SuperObject;
 
-import javax.imageio.ImageIO;
-
 import static com.vengeance.game.entity.Entity.direction.*;
-import static java.lang.System.exit;
 
 public class Player extends MobileEntity {
 
@@ -21,7 +15,7 @@ public class Player extends MobileEntity {
 
     private final int screenX;
     private final int screenY;
-
+    public Rectangle attackArea = new Rectangle();
     public int keysGathered = 0;
 
     public Player(GamePanel gamePanel, KeyHandler keyHandler) {
@@ -57,15 +51,32 @@ public class Player extends MobileEntity {
     }
 
     public void setDefaultValues() {
-        setWorldX(gamePanel.getTileSize() * 25);
-        setWorldY(gamePanel.getTileSize() * 21);
+        if (gamePanel.currentMap == 0) {
+            setWorldX(gamePanel.getTileSize() * 25);
+            setWorldY(gamePanel.getTileSize() * 21);
+            keysGathered = 200;
+
+        } else if (gamePanel.currentMap == 1) {
+            gamePanel.keyHandler.ePressed = true;
+            gamePanel.eventHandler.teleport(1, 33, 38);
+
+        } else if (gamePanel.currentMap == 2) {
+            gamePanel.keyHandler.ePressed = true;
+            gamePanel.eventHandler.teleport(2, 5, 39);
+        }
         setSpeed(4);
         life = maxLife;
-        invincible = false;
+        invincible = true;
         invincibleCount = 0;
-        keysGathered = 0;
         setDirection(WALK_RIGHT);
         setDrawDirection(WALK_RIGHT);
+    }
+
+    protected void setAttackArea(int x, int y) {
+        attackArea.x = x * spriteScale;
+        attackArea.y = y * spriteScale;
+        attackArea.width = (width - x * 2) * spriteScale;
+        attackArea.height = (height - y * 2) * spriteScale;
     }
 
     public BufferedImage getPlayerImage() {
@@ -78,18 +89,11 @@ public class Player extends MobileEntity {
         return getWalkRight()[1];
     }
 
-    @Override
-    protected void hit() {
-        super.hit();
-        gamePanel.playSE(2);
-    }
-
     private boolean checkKeysPressed() {
         if (keyHandler.isUpPressed() ||
                 keyHandler.isDownPressed() ||
                 keyHandler.isLeftPressed() ||
-                keyHandler.isRightPressed() ||
-                keyHandler.spacePressed) {
+                keyHandler.isRightPressed()) {
             if (keyHandler.isUpPressed()) {
                 setDirection(WALK_UP);
             } else if (keyHandler.isDownPressed()) {
@@ -108,7 +112,6 @@ public class Player extends MobileEntity {
 
     @Override
     public void update() {
-
         updateInvincible();
 
         // Attacking
@@ -139,11 +142,12 @@ public class Player extends MobileEntity {
     private void damageEnemy(int i) {
         if (i != -1) {
 
-            if (!gamePanel.enemy[i].invincible) {
-                gamePanel.enemy[i].hit();
+            if (!gamePanel.enemy[gamePanel.currentMap][i].invincible) {
+                gamePanel.enemy[gamePanel.currentMap][i].hit();
 
-                if (gamePanel.enemy[i].life <= 0) {
-                    gamePanel.enemy[i] = null;
+                if (gamePanel.enemy[gamePanel.currentMap][i].life <= 0) {
+                    gamePanel.enemy[gamePanel.currentMap][i].update();
+                    gamePanel.enemy[gamePanel.currentMap][i] = null;
                 }
             }
         }
@@ -152,19 +156,27 @@ public class Player extends MobileEntity {
     private void getHitByEnemy(int i) {
         if (i != -1) {
             if (!invincible) {
-                hit();
+                hit(i);
             }
         }
     }
 
+    private void hit(int i) {
+        if (!invincible) {
+            life -= gamePanel.enemy[gamePanel.currentMap][i].damage;
+            invincible = true;
+        }
+        gamePanel.playSE(2);
+    }
+
     private void interactWithObject(int i) {
         if (i != -1) {
-            SuperObject.Object name = gamePanel.obj[i].name;
+            SuperObject.Object name = gamePanel.obj[gamePanel.currentMap][i].name;
             switch (name) {
                 case KEY -> {
                     keysGathered++;
                     gamePanel.playSE(1);
-                    gamePanel.obj[i] = null;
+                    gamePanel.obj[gamePanel.currentMap][i] = null;
                     gamePanel.ui.setMessage("You got a key!");
                 }
                 case CHEST -> {
@@ -179,7 +191,7 @@ public class Player extends MobileEntity {
         if (gamePanel.keyHandler.enterPressed) {
             if (i != -1) {
                 gamePanel.gameState = GamePanel.GAME_STATE.DIALOG_STATE;
-                gamePanel.npc[i].speak();
+                gamePanel.npc[gamePanel.currentMap][i].speak();
             }
         }
         if (gamePanel.keyHandler.spacePressed) {
@@ -194,7 +206,7 @@ public class Player extends MobileEntity {
         }
         graphics2D.drawImage(getDirectionalImage(), screenX, screenY, null);
         graphics2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
-        drawDebugRects(graphics2D, screenX, screenY);
+//        drawDebugRects(graphics2D, screenX, screenY);
 
     }
 
