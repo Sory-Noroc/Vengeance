@@ -54,7 +54,7 @@ public class Player extends MobileEntity {
         if (gamePanel.currentMap == 0) {
             setWorldX(gamePanel.getTileSize() * 25);
             setWorldY(gamePanel.getTileSize() * 21);
-            keysGathered = 200;
+            keysGathered = 0;
 
         } else if (gamePanel.currentMap == 1) {
             gamePanel.keyHandler.ePressed = true;

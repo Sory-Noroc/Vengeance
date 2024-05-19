@@ -28,6 +28,7 @@ public class KeyHandler implements KeyListener {
         int code = e.getKeyCode();
 
         if (code == KeyEvent.VK_K) {
+            gamePanel.saveData();
             exit(0);
         }
 
@@ -48,10 +49,15 @@ public class KeyHandler implements KeyListener {
                 if (gamePanel.ui.commandNum == 0) {
                     gamePanel.gameState = GamePanel.GAME_STATE.PLAY_STATE;
                     gamePanel.playMusic(0);
+
                 } else if (gamePanel.ui.commandNum == 1) {
                     // Database loading
+                    gamePanel.loadData();
+                    gamePanel.gameState = GamePanel.GAME_STATE.PLAY_STATE;
+                    gamePanel.playMusic(0);
 
                 } else if (gamePanel.ui.commandNum == 2) {
+                    gamePanel.saveData();
                     System.exit(0);
                 }
             }
@@ -87,6 +93,7 @@ public class KeyHandler implements KeyListener {
         } else if (gamePanel.gameState == GamePanel.GAME_STATE.GAME_OVER_STATE) {
             ePressed = false;
             gameOverState(code);
+
         } else if (gamePanel.gameState == WON_STATE) {
             gameWonState(code);
         }
@@ -108,6 +115,7 @@ public class KeyHandler implements KeyListener {
                 gamePanel.gameState = GamePanel.GAME_STATE.PLAY_STATE;
                 gamePanel.player.setDefaultValues();
                 gamePanel.setUpGame();
+
             } else if (gamePanel.ui.commandNum == 1) {
                 gamePanel.gameState = MENU_STATE;
             }
@@ -133,6 +141,7 @@ public class KeyHandler implements KeyListener {
 
             } else if (gamePanel.ui.commandNum == 1) {
                 // Quit button
+                gamePanel.saveData();
                 exit(0);
             }
         }
@@ -183,35 +192,16 @@ public class KeyHandler implements KeyListener {
         return upPressed;
     }
 
-    public KeyHandler setUpPressed(boolean upPressed) {
-        this.upPressed = upPressed;
-        return this;
-    }
-
     public boolean isDownPressed() {
         return downPressed;
-    }
-
-    public KeyHandler setDownPressed(boolean downPressed) {
-        this.downPressed = downPressed;
-        return this;
     }
 
     public boolean isLeftPressed() {
         return leftPressed;
     }
 
-    public KeyHandler setLeftPressed(boolean leftPressed) {
-        this.leftPressed = leftPressed;
-        return this;
-    }
-
     public boolean isRightPressed() {
         return rightPressed;
     }
 
-    public KeyHandler setRightPressed(boolean rightPressed) {
-        this.rightPressed = rightPressed;
-        return this;
-    }
 }

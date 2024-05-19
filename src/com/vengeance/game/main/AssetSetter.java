@@ -44,8 +44,6 @@ public class AssetSetter {
         gp.npc[mapNum][0] = new KingNPC(gp);
         gp.npc[mapNum][0].worldX = 2 * gp.getTileSize();
         gp.npc[mapNum][0].worldY = 7 * gp.getTileSize();
-
-        mapNum = 1;
     }
 
     public void setEnemies() {

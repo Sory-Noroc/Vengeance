@@ -1,6 +1,7 @@
 package com.vengeance.game.main;
 
 import com.vengeance.game.animation.AnimationFactory;
+import com.vengeance.game.database.DataBase;
 import com.vengeance.game.entity.*;
 import com.vengeance.game.events.EventHandler;
 import com.vengeance.game.events.KeyHandler;
@@ -11,6 +12,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Objects;
 
 public class GamePanel extends JPanel implements Runnable {
 
@@ -31,13 +33,11 @@ public class GamePanel extends JPanel implements Runnable {
     // WORLD SETTINGS
     private final int maxWorldColumns = 50;
     private final int maxWorldRows = 50;
-    private final int worldWidth = tileSize * maxWorldColumns;
-    private final int worldHeight = tileSize * maxWorldRows;
     public final int maxMap = 4;
     public int currentMap = 0;
 
     // FPS
-    private final int FPS = 60;
+    public int FPS = 60;
 
     public final TileManager tileManager = new TileManager(this);
     public final KeyHandler keyHandler = new KeyHandler(this);
@@ -56,6 +56,7 @@ public class GamePanel extends JPanel implements Runnable {
     ArrayList<Entity> entityList = new ArrayList<>();
     public UI ui = new UI(this);
     public EventHandler eventHandler = new EventHandler(this);
+    DataBase dataBase = new DataBase(this);
 
     // Game State
     public GAME_STATE gameState = GAME_STATE.MENU_STATE;
@@ -69,11 +70,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public static GamePanel getInstance() {
-        if (INSTANCE == null) {
-            return new GamePanel();
-        } else {
-            return INSTANCE;
-        }
+        return Objects.requireNonNullElseGet(INSTANCE, GamePanel::new);
     }
 
     public void setUpGame() {
@@ -90,7 +87,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     @Override
     public void run() {
-        double drawInterval = 1000000000 / FPS;
+        double drawInterval = (double) 1000000000 / FPS;
         double delta = 0;
         long lastTime = System.nanoTime();
         long currentTime;
@@ -166,8 +163,8 @@ public class GamePanel extends JPanel implements Runnable {
             entityList.sort(Comparator.comparingInt(Entity::getWorldY));
 
             // Draw entities
-            for (int i = 0; i < entityList.size(); i++) {
-                entityList.get(i).draw(graphics2D);
+            for (Entity entity : entityList) {
+                entity.draw(graphics2D);
             }
             entityList.clear();
 
@@ -228,5 +225,15 @@ public class GamePanel extends JPanel implements Runnable {
     public void playSE(int i) {
         se.setFile(i);
         se.play();
+    }
+
+    public void loadData() {
+        // Player Settings
+        String tableName = "STATS";
+        dataBase.selectPlayerTable(tableName);
+    }
+    public void saveData() {
+        // Save game state when closing game window
+        dataBase.saveData();
     }
 }
