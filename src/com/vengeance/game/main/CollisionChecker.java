@@ -3,9 +3,6 @@ import com.vengeance.game.entity.Entity;
 import com.vengeance.game.entity.MobileEntity;
 import com.vengeance.game.entity.Player;
 
-import java.awt.*;
-import java.util.Currency;
-
 public class CollisionChecker {
 
     private final GamePanel gamePanel;

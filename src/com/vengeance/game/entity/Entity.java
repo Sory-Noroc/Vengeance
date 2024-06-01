@@ -69,24 +69,27 @@ public abstract class Entity {
         return worldX;
     }
 
-    public void setWorldX(int worldX) {
+    public Entity setWorldX(int worldX) {
         this.worldX = worldX;
+        return this;
     }
 
     public int getWorldY() {
         return worldY;
     }
 
-    public void setWorldY(int worldY) {
+    public Entity setWorldY(int worldY) {
         this.worldY = worldY;
+        return this;
     }
 
     public int getSpeed() {
         return speed;
     }
 
-    public void setSpeed(int speed) {
+    public Entity setSpeed(int speed) {
         this.speed = speed;
+        return this;
     }
 
     public BufferedImage[] getWalkRight() {

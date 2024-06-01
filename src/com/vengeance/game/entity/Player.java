@@ -84,9 +84,16 @@ public class Player extends MobileEntity {
         setImages(direction.WALK_RIGHT, "/resources/images/player/Viking-Sheet.png", width, height, 8, height);
         setImages(direction.IDLE_LEFT, "/resources/images/player/LeftViking-Sheet.png", width, height, 8, 0);
         setImages(direction.IDLE_RIGHT, "/resources/images/player/Viking-Sheet.png", width, height, 8, 0);
-        setImages(direction.ATTACK_LEFT, "/resources/images/player/LeftViking-Sheet.png", width, height, 4, 8*height);
-        setImages(direction.ATTACK_RIGHT, "/resources/images/player/Viking-Sheet.png", width, height, 4, 8*height);
+        setImages(direction.ATTACK_LEFT, "/resources/images/player/LeftViking-Sheet.png", width, height, 8, 8*height);
+        setImages(direction.ATTACK_RIGHT, "/resources/images/player/Viking-Sheet.png", width, height, 8, 8*height);
         return getWalkRight()[1];
+    }
+
+    @Override
+    public void setAttacking(boolean attacking) {
+        isAttacking = attacking;
+        setSpriteNumber(1);
+        setSpriteCounter(0);
     }
 
     private boolean checkKeysPressed() {

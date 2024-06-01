@@ -131,19 +131,6 @@ public class DataBase {
             }
             deleteDeadEntity(restoredEntities, gp.enemy);
 
-//            int k = 0;
-//            for(int i = 0; i < gp.enemy.length; ++i) {
-//                for(int j = 0; j < gp.enemy[i].length; ++j) {
-//                    if(gp.enemy[i][j] != null) {
-//                        int map = Integer.parseInt(arrayMonsters[k]);
-//                        int index = Integer.parseInt(arrayMonsters[k + 1]);
-//                        gp.enemy[i][j].worldX = Integer.parseInt(arrayMonsters[k + 2]);
-//                        gp.enemy[i][j].worldY = Integer.parseInt(arrayMonsters[k + 3]);
-//                        gp.enemy[i][j].life = Integer.parseInt(arrayMonsters[k + 4]);
-//                    }
-//                    k += 3;
-//                }
-//            }
             String[] arrayNPC = npc.split(", ");
             for (int i = 0; i < arrayNPC.length/4; i++) {
                 k = i * 4;
@@ -155,16 +142,6 @@ public class DataBase {
             }
             deleteDeadEntity(restoredEntities, gp.npc);
 
-//            k = 0;
-//            for(int i = 0; i < gp.npc.length; ++i) {
-//                for(int j = 0; j < gp.npc[i].length; ++j) {
-//                    if(gp.npc[i][j] != null) {
-//                        gp.npc[i][j].worldX = Integer.parseInt(arrayNPC[k]);
-//                        gp.npc[i][j].worldY = Integer.parseInt(arrayNPC[k + 1]);
-//                    }
-//                    k += 2;
-//                }
-//            }
             String[] arrayObjects = objects.split(", ");
             for (int i = 0; i < arrayObjects.length/4; i++) {
                 k = i * 4;
@@ -176,17 +153,6 @@ public class DataBase {
             }
             deleteDeadEntity(restoredEntities, gp.obj);
 
-
-//            k = 0;
-//            for(int i = 0; i < gp.obj.length; ++i) {
-//                for(int j = 0; j < gp.obj[i].length; ++j) {
-//                    if(gp.obj[i][j] != null) {
-//                        gp.obj[i][j].worldX = Integer.parseInt(arrayObjects[k]);
-//                        gp.obj[i][j].worldY = Integer.parseInt(arrayObjects[k + 1]);
-//                    }
-//                    k += 2;
-//                }
-//            }
             rs.close();
             stmt.close();
             connection.close();

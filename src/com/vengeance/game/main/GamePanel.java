@@ -114,6 +114,7 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
+    // Facade
     public void update() {
         if (gameState == GAME_STATE.PLAY_STATE) {
             AnimationFactory.updateAnimations();
@@ -133,6 +134,7 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
+    // Facade
     public void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
         Graphics2D graphics2D = (Graphics2D) graphics;
@@ -169,10 +171,10 @@ public class GamePanel extends JPanel implements Runnable {
             entityList.clear();
 
             // Debugging player position
-            int x = 10, y = 400;
-            graphics2D.drawString("Col: " + (player.worldX + player.collisionArea.x)/getTileSize(), x, y);
-            y += 30;
-            graphics2D.drawString("Row: " + (player.worldY + player.collisionArea.y)/getTileSize(), x, y);
+//            int x = 10, y = 400;
+//            graphics2D.drawString("Col: " + (player.worldX + player.collisionArea.x)/getTileSize(), x, y);
+//            y += 30;
+//            graphics2D.drawString("Row: " + (player.worldY + player.collisionArea.y)/getTileSize(), x, y);
         }
         ui.draw(graphics2D);
         graphics2D.dispose();

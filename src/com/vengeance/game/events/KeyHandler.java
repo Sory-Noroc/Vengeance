@@ -85,6 +85,10 @@ public class KeyHandler implements KeyListener {
             if (code == KeyEvent.VK_E) {
                 ePressed = true;
             }
+            if (code == KeyEvent.VK_L) {
+                gamePanel.saveData();
+                gamePanel.gameState = MENU_STATE;
+            }
 
         } else if (gamePanel.gameState == GamePanel.GAME_STATE.DIALOG_STATE) {
             if (code == KeyEvent.VK_ENTER) {
